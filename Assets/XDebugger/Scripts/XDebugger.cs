@@ -1,22 +1,47 @@
-using System.Collections.Generic;
+using UnityEngine;
 
-namespace XDebugger
+namespace WhyNullName
 {
     public class XDebugger
     {
-        private IDebugCategory[] _debugCategories;
-        private XDebuggerWindow _debuggerWindow;
+        private const string CanvasName = "XDebuggerCanvas";
 
-        public void Init(IDebugCategory[] debugCategories)
+        private IDebugCategory[] _debugCategories;
+        private XDebuggerCanvas _debuggerCanvas;
+        private SimpleDispatcher _simpleDispatcher;
+
+        public XDebugger(IDebugCategory[] debugCategories, bool initInMainThread = true)
         {
             _debugCategories = debugCategories;
-            //TODO: надо тут типо инициализровать окно и контроллер, хотя по факту дебаггер и может быть контроллером
-            InstantiateDebuggerWindow();
+            InstantiateDispatcher();
+
+            if (initInMainThread)
+            {
+                _simpleDispatcher.Enqueue(() => InstantiateDebuggerCanvas());
+            }
+            else
+            {
+                InstantiateDebuggerCanvas();
+            }
         }
 
-        private void InstantiateDebuggerWindow()
+        private void InstantiateDispatcher()
         {
-            
+            var dispatcherGo = new GameObject("Debugger Simple Disaptcher");
+            _simpleDispatcher = dispatcherGo.AddComponent<SimpleDispatcher>();
+        }
+
+        private void InstantiateDebuggerCanvas()
+        {
+            var canvasPrefab = Resources.Load<XDebuggerCanvas>(CanvasName);
+
+            if (canvasPrefab == null)
+            {
+                Debug.LogError($"[XDebugger] - Can't load debug canvas!");
+                return;
+            }
+
+            _debuggerCanvas = Object.Instantiate(canvasPrefab);
         }
     }
 }

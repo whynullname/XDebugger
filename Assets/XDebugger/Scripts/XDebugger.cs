@@ -17,11 +17,11 @@ namespace WhyNullName
 
             if (initInMainThread)
             {
-                _simpleDispatcher.Enqueue(() => InstantiateDebuggerCanvas());
+                _simpleDispatcher.Enqueue(() => InstantiateDebuggerCanvas(debugCategories));
             }
             else
             {
-                InstantiateDebuggerCanvas();
+                InstantiateDebuggerCanvas(debugCategories);
             }
         }
 
@@ -31,7 +31,7 @@ namespace WhyNullName
             _simpleDispatcher = dispatcherGo.AddComponent<SimpleDispatcher>();
         }
 
-        private void InstantiateDebuggerCanvas()
+        private void InstantiateDebuggerCanvas(IDebugCategory[] categories)
         {
             var canvasPrefab = Resources.Load<XDebuggerCanvas>(CanvasName);
 
@@ -42,6 +42,7 @@ namespace WhyNullName
             }
 
             _debuggerCanvas = Object.Instantiate(canvasPrefab);
+            _debuggerCanvas.InjectCategories(categories);
         }
     }
 }
